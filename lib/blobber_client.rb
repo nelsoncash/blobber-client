@@ -5,11 +5,12 @@ require 'tempfile'
 require 'cgi'
 
 class BlobberClient
-  UnknownError          = 
-  CreateFailed          = 
-  FetchNonexistentBlob  = 
-  DeleteNonexistentBlob = 
+  UnknownError          = Class.new(StandardError)
+  CreateFailed          = Class.new(StandardError)
+  FetchNonexistentBlob  = Class.new(StandardError)
+  DeleteNonexistentBlob = Class.new(StandardError)
   PutNotSupported       = Class.new(StandardError)
+  MalformedKey          = Class.new(StandardError)
 
   def initialize(base_url = 'http://blobber.cashnetusa.com/blobber')  # FIXME!!! when IT assigns a URL
     @base_url = if base_url[-1] == '/' then
@@ -37,6 +38,7 @@ class BlobberClient
       case response.code
       when 200 then response.body
       when 410 then raise FetchNonexistentBlob.new("Invalid key: '#{key}'")
+      when 404 then raise MalformedKey.new("Malformed key: '#{key}'")
       else          raise UnknownError.new("Unable to handle response code: #{response.code}")
       end
     end
