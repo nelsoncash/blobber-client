@@ -1,0 +1,2 @@
+rvm use ruby-1.9.3@enova_blob_client --create
+alias irb='bundle exec irb'

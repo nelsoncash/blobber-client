@@ -1,0 +1,10 @@
+1. Why does the gem have a hyphen but the require uses an underscore?
+
+    1.9.3p194 :002 > gem 'blobber-client'
+    gem 'blobber-client'
+     => true 
+    
+    
+    1.9.3p194 :004 > require 'blobber_client'
+    require 'blobber_client'
+     => true 
