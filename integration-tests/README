@@ -1,0 +1,6 @@
+If I put this test in spec, some EVIL in rspec will use WebMock in this test too!
+
+Ruby seems to have been written by children.
+
+Just make sure you have Blobber running on localhost at port 3000 
+and  run "rspec integration_with_live_server_spec.rb" for the live test.
