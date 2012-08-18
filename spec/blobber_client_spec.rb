@@ -3,11 +3,16 @@ require 'spec_helper'
 describe BlobberClient do
 
   context 'remote storage' do
-    let(:url) { 'http://localhost/blobber/' }
-    let(:contents) { "foo\nbar\nbaz\n" }
 
     before do
       WebMock.disable_net_connect!
+    end
+
+    it "should strip trailing '/' from the url argument to #new" do
+      good = 'http://example.com/x'
+      bad  = 'http://example.com/x/'
+      BlobberClient.new( bad). instance_variable_get('@base_url').should == good
+      BlobberClient.new( good).instance_variable_get('@base_url').should == good
     end
 
     it 'PUT should not be supported and should raise an error if you try (Blobber data is immutable)' do
