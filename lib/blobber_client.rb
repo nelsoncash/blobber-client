@@ -1,27 +1,26 @@
 require "blobber_client/version"
-require 'stringio'
 require 'rest-client'
-require 'tempfile'
-require 'cgi'
 
 class BlobberClient
-  UnknownError          = Class.new(StandardError)
-  CreateFailed          = Class.new(StandardError)
-  FetchNonexistentBlob  = Class.new(StandardError)
-  DeleteNonexistentBlob = Class.new(StandardError)
-  PutNotSupported       = Class.new(StandardError)
-  MalformedKey          = Class.new(StandardError)
+  class Error < StandardError; end
 
-  def initialize(base_url = 'http://blobber.cashnetusa.com/blobber')  # FIXME!!! when IT assigns a URL
+  class UnknownError          < Error; end
+  class CreateFailed          < Error; end
+  class FetchNonexistentBlob  < Error; end
+  class DeleteNonexistentBlob < Error; end
+  class PutNotSupported       < Error; end
+  class MalformedKey          < Error; end
+
+  def initialize(base_url)
     @base_url = if base_url[-1] == '/' then
                   base_url.chop
                 else
                   base_url
                 end
+    rescue StandardError => e; raise Error.new(e.inspect)
   end
 
   def post(contents)
-    # RestClient.post(sanitize_url(), :contents => contents) 
     RestClient.post(@base_url,
                     contents,
                     :content_type => 'application/octet-stream') do |response, request, result|
@@ -31,6 +30,8 @@ class BlobberClient
       else          raise UnknownError.new("Unable to handle response code: #{response.code}")
       end
     end
+    rescue CreateFailed, UnknownError; raise
+    rescue StandardError => e; raise Error.new(e.inspect)
   end
 
   def get(key)
@@ -42,6 +43,8 @@ class BlobberClient
       else          raise UnknownError.new("Unable to handle response code: #{response.code}")
       end
     end
+    rescue FetchNonexistentBlob, MalformedKey, UnknownError; raise
+    rescue StandardError => e; raise Error.new(e.inspect)
   end
 
   def delete(key)
@@ -52,6 +55,8 @@ class BlobberClient
       else          raise UnknownError.new("Unable to handle response code: #{response.code}")
       end
     end
+    rescue DeleteNonexistentBlob, UnknownError;  raise
+    rescue StandardError => e; raise Error.new(e.inspect)
   end
 
   def put(*args)
