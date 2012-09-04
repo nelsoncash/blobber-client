@@ -4,6 +4,7 @@ SimpleCov.start
 require 'rspec'
 require 'blobber_client'
 require 'fileutils'
+require 'tempfile'
 
 describe BlobberClient do
 
@@ -63,4 +64,30 @@ describe BlobberClient do
     end
 
   end # context 'remote storage'
+
+  context 'Live data integrity test using arbitrary binary data with a running blob server.' do
+
+    before :all do
+      @url      = 'http://localhost:3000/'
+      @client   = BlobberClient.new(@url)
+      @blob     = File.open( '/dev/urandom', 'rb') { |f| f.read( 1024 * 1024) }
+      @original = Tempfile.new( 'blobber-client')
+
+      @original.write( @blob)
+    end
+
+    it 'should POST arbitrary binary data and GET the data unchanged (internal string comparison)' do
+      key    = @client.post( @blob )
+      result = @client.get( key )
+    end
+
+    it 'should POST arbitrary binary data and GET the data unchanged (external file comparison)' do
+      key    = @client.post( @blob )
+      blob   = @client.get( key )
+      copy   = Tempfile.new( 'blobber-client')
+      copy.write( blob)
+      FileUtils.compare_file( @original, copy).should == true
+    end
+  end # context 'Live data integrity'
+
 end # describe BlobberClient
