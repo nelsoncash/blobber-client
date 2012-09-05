@@ -1,6 +1,18 @@
-If I put this test in spec, some EVIL in rspec will use WebMock in this test too!
+The test in this directory uses a live Blobber server.
 
-Ruby seems to have been written by children.
+The test expects to find Blobber at http://localhost:3000.
+If the Blobber URL is different, set BLOBBER_URL in the environment, e.g.:
 
-Just make sure you have Blobber running on localhost at port 3000 
-and  run "rspec integration_with_live_server_spec.rb" for the live test.
+  export BLOBBER_URL=https://localhost:7443/blobber
+
+If accessing Blobber via SSL, and there are problems with a certificate,
+you can set the environment variable BLOBBER_TRUST_ALL_SSL_CERTIFICATES, e.g:
+
+  export BLOBBER_TRUST_ALL_SSL_CERTIFICATES=true
+
+BLOBBER_TRUST_ALL_SSL_CERTIFICATES only affects the test itself; it doesn't 
+change the behavior of the BlobberClient directly.
+
+Run the test:
+
+  rspec integration_with_live_server_spec.rb

@@ -6,13 +6,19 @@ require 'blobber_client'
 require 'fileutils'
 require 'tempfile'
 
+
 describe BlobberClient do
 
   context 'Live test with a running blob server.' do
 
     before :all do
-      @url = 'http://localhost:3000/'
+      @url = ENV['BLOBBER_URL'] || 'http://localhost:3000/'
       @counter = 0
+      if ENV['BLOBBER_TRUST_ALL_SSL_CERTIFICATES']
+        require 'openssl'
+        OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+        STDERR.puts "Setting OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE"
+      end
     end
 
     before :each do
@@ -68,7 +74,14 @@ describe BlobberClient do
   context 'Live data integrity test using arbitrary binary data with a running blob server.' do
 
     before :all do
-      @url      = 'http://localhost:3000/'
+      @url = ENV['BLOBBER_URL'] || 'http://localhost:3000/'
+
+      if ENV['BLOBBER_TRUST_ALL_SSL_CERTIFICATES']
+        require 'openssl'
+        OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+        STDERR.puts "Setting OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE"
+      end
+
       @client   = BlobberClient.new(@url)
       @blob     = File.open( '/dev/urandom', 'rb') { |f| f.read( 1024 * 1024) }
       @original = Tempfile.new( 'blobber-client')
