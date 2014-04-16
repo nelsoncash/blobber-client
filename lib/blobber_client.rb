@@ -18,6 +18,7 @@ class BlobberClient
                   base_url
                 end
     @x_blobber_shared_secret = secret
+    puts "#{@x_blobber_shared_secret}"
     rescue StandardError => e; raise Error.new(e.inspect)
   end
 
