@@ -11,19 +11,22 @@ class BlobberClient
   class PutNotSupported       < Error; end
   class MalformedKey          < Error; end
 
-  def initialize(base_url)
+  def initialize(base_url, secret=nil)
     @base_url = if base_url[-1] == '/' then
                   base_url.chop
                 else
                   base_url
                 end
+    @x_blobber_shared_secret = secret
     rescue StandardError => e; raise Error.new(e.inspect)
   end
 
   def post(contents)
     RestClient.post(@base_url,
                     contents,
-                    :content_type => 'application/octet-stream') do |response, request, result|
+                    {:content_type => 'application/octet-stream',
+                      "X-BLOBBER-SHARED-SECRET" => @x_blobber_shared_secret}
+                    ) do |response, request, result|
       case response.code
       when 201 then response.body
       when 500 then raise CreateFailed.new("Failed to create blob.")
